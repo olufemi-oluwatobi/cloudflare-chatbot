@@ -18,14 +18,15 @@ function handleError(error: unknown, message: string, status = 500) {
 // GET /api/agents/[id] - Get a specific agent
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    if (!params?.id) {
+    const { id } = await params;
+    if (!id) {
       return handleError(null, 'Agent ID is required', 400);
     }
 
-    const agent = await kv.getAgent(params.id);
+    const agent = await kv.getAgent(id);
     if (!agent) {
       return handleError(null, 'Agent not found', 404);
     }
@@ -39,15 +40,16 @@ export async function GET(
 // PATCH /api/agents/[id] - Update an agent
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    if (!params?.id) {
+    const { id } = await params;
+    if (!id) {
       return handleError(null, 'Agent ID is required', 400);
     }
 
     const updates = await request.json() as Partial<Agent>;
-    const updatedAgent = await kv.updateAgent(params.id, {
+    const updatedAgent = await kv.updateAgent(id, {
       ...updates,
       updatedAt: new Date().toISOString(),
     });
@@ -65,14 +67,15 @@ export async function PATCH(
 // DELETE /api/agents/[id] - Delete an agent
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    if (!params?.id) {
+    const { id } = await params;
+    if (!id) {
       return handleError(null, 'Agent ID is required', 400);
     }
 
-    const success = await kv.deleteAgent(params.id);
+    const success = await kv.deleteAgent(id);
     if (!success) {
       return handleError(null, 'Agent not found', 404);
     }

@@ -17,10 +17,10 @@ function handleError(error: unknown, message: string, status = 500) {
 // GET /api/files/[id] - Get a specific file
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return handleError(new Error('File ID is required'), 'Missing file ID', 400);
     }
@@ -43,10 +43,10 @@ export async function GET(
 // PATCH /api/files/[id] - Update file metadata
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return handleError(new Error('File ID is required'), 'Missing file ID', 400);
     }
@@ -75,10 +75,10 @@ export async function PATCH(
 // DELETE /api/files/[id] - Delete a file
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const conversationId = searchParams.get('conversationId');
     

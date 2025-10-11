@@ -18,14 +18,15 @@ function handleError(error: unknown, message: string, status = 500) {
 // GET /api/artifacts/[id] - Get a specific artifact
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!params?.id) {
+    const { id } = await params;
+    if (!id) {
       return handleError(null, 'Artifact ID is required', 400);
     }
 
-    const artifact = await kv.getArtifact(params.id);
+    const artifact = await kv.getArtifact(id);
     if (!artifact) {
       return handleError(null, 'Artifact not found', 404);
     }
