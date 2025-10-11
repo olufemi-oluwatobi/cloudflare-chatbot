@@ -3,8 +3,19 @@
 // Runtime types generated with workerd@1.20250508.0 2025-05-20 nodejs_compat
 declare namespace Cloudflare {
 	interface Env {
-		AI: Ai;
-	}
+    // AI binding
+    AI: Ai;
+    
+    // KV Namespace
+    MY_KV_NAMESPACE: KVNamespace;
+    
+    // R2 Bucket
+    MY_BUCKET: R2Bucket;
+    
+    // Durable Objects
+    // Replace with your actual Durable Object class types
+    COUNTER: DurableObjectNamespace;
+  }
 }
 interface CloudflareEnv extends Cloudflare.Env {}
 

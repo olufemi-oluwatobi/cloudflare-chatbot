@@ -1,4 +1,5 @@
 import { getRequestContext } from '@cloudflare/next-on-pages'
+import { durableObjectTools } from '@/src/tools/durable-object-tools';
 
 export const runtime = 'edge'
 
@@ -6,20 +7,23 @@ import { createWorkersAI } from 'workers-ai-provider';
 import { streamText } from 'ai';
 import { NextRequest } from 'next/server';
 
+const tools = durableObjectTools(getRequestContext().env);
+
+
 export async function POST(req: NextRequest) {
   const resJson: any = await req.json();
   let messages: any = resJson["messages"];
 
   const workersai = createWorkersAI({ binding: getRequestContext().env.AI });
-
   const textStream = streamText({
     model: workersai('@cf/meta/llama-2-7b-chat-int8'),
     messages: messages,
+    tools,
   });
 
   return textStream.toDataStreamResponse({
     headers: {
-      // add these headers to ensure that the
+      // add these headers to ensure that thess
       // response is chunked and streamed
       'Content-Type': 'text/x-unknown',
       'content-encoding': 'identity',
