@@ -40,15 +40,16 @@ export async function GET(
 // PATCH /api/artifacts/[id] - Update an artifact
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!params?.id) {
+    const { id } = await params;
+    if (!id) {
       return handleError(null, 'Artifact ID is required', 400);
     }
 
     const updates = await request.json() as Partial<Artifact>;
-    const updatedArtifact = await kv.updateArtifact(params.id, {
+    const updatedArtifact = await kv.updateArtifact(id, {
       ...updates,
       updatedAt: new Date().toISOString(),
     });
@@ -66,14 +67,15 @@ export async function PATCH(
 // DELETE /api/artifacts/[id] - Delete an artifact
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!params?.id) {
+    const { id } = await params;
+    if (!id) {
       return handleError(null, 'Artifact ID is required', 400);
     }
 
-    const success = await kv.deleteArtifact(params.id);
+    const success = await kv.deleteArtifact(id);
     if (!success) {
       return handleError(null, 'Artifact not found', 404);
     }
