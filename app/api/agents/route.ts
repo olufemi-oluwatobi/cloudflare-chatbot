@@ -2,11 +2,21 @@ import { NextResponse } from 'next/server';
 import { KVStore } from '../../../src/lib/kv-helpers';
 import { KV_PREFIXES } from '../../../src/types/kv-schema';
 import type { Agent } from '../../../src/types/kv-schema';
-import {getRequestContext} from '@cloudflare/next-on-pages';
+import { getRequestContext } from '@cloudflare/next-on-pages';
+
 type RouteParams = { params: { id?: string } };
 
 // Initialize KV store
 const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
+
+// Helper function to handle common error responses
+function handleError(error: unknown, message: string, status = 500) {
+  console.error(`${message}:`, error);
+  return NextResponse.json(
+    { error: status === 500 ? 'Internal server error' : message },
+    { status }
+  );
+}
 
 // GET /api/agents - List all agents for a user
 async function handleGET(request: Request) {
@@ -15,20 +25,13 @@ async function handleGET(request: Request) {
     const userId = searchParams.get('userId');
     
     if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
+      return handleError(null, 'User ID is required', 400);
     }
 
     const agents = await kv.listAgentsByUser(userId);
     return NextResponse.json(agents);
   } catch (error) {
-    console.error('Error listing agents:', error);
-    return NextResponse.json(
-      { error: 'Failed to list agents' },
-      { status: 500 }
-    );
+    return handleError(error, 'Failed to list agents');
   }
 }
 
@@ -38,10 +41,7 @@ async function handlePOST(request: Request) {
     const agentData: Omit<Agent, 'id' | 'createdAt' | 'updatedAt'> = await request.json();
     
     if (!agentData.name || !agentData.role || !agentData.personality) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return handleError(null, 'Missing required fields', 400);
     }
 
     const agent: Agent = {
@@ -54,11 +54,7 @@ async function handlePOST(request: Request) {
     await kv.setAgent(agent);
     return NextResponse.json(agent, { status: 201 });
   } catch (error) {
-    console.error('Error creating agent:', error);
-    return NextResponse.json(
-      { error: 'Failed to create agent' },
-      { status: 500 }
-    );
+    return handleError(error, 'Failed to create agent');
   }
 }
 
@@ -66,27 +62,17 @@ async function handlePOST(request: Request) {
 async function handleGETById(request: Request, { params }: RouteParams) {
   try {
     if (!params?.id) {
-      return NextResponse.json(
-        { error: 'Agent ID is required' },
-        { status: 400 }
-      );
+      return handleError(null, 'Agent ID is required', 400);
     }
 
     const agent = await kv.getAgent(params.id);
     if (!agent) {
-      return NextResponse.json(
-        { error: 'Agent not found' },
-        { status: 404 }
-      );
+      return handleError(null, 'Agent not found', 404);
     }
 
     return NextResponse.json(agent);
   } catch (error) {
-    console.error('Error getting agent:', error);
-    return NextResponse.json(
-      { error: 'Failed to get agent' },
-      { status: 500 }
-    );
+    return handleError(error, 'Failed to get agent');
   }
 }
 
@@ -94,10 +80,7 @@ async function handleGETById(request: Request, { params }: RouteParams) {
 async function handlePATCH(request: Request, { params }: RouteParams) {
   try {
     if (!params?.id) {
-      return NextResponse.json(
-        { error: 'Agent ID is required' },
-        { status: 400 }
-      );
+      return handleError(null, 'Agent ID is required', 400);
     }
 
     const updates = await request.json() as Partial<Agent>;
@@ -107,19 +90,12 @@ async function handlePATCH(request: Request, { params }: RouteParams) {
     });
 
     if (!updatedAgent) {
-      return NextResponse.json(
-        { error: 'Agent not found' },
-        { status: 404 }
-      );
+      return handleError(null, 'Agent not found', 404);
     }
 
     return NextResponse.json(updatedAgent);
   } catch (error) {
-    console.error('Error updating agent:', error);
-    return NextResponse.json(
-      { error: 'Failed to update agent' },
-      { status: 500 }
-    );
+    return handleError(error, 'Failed to update agent');
   }
 }
 
@@ -127,27 +103,17 @@ async function handlePATCH(request: Request, { params }: RouteParams) {
 async function handleDELETE(request: Request, { params }: RouteParams) {
   try {
     if (!params?.id) {
-      return NextResponse.json(
-        { error: 'Agent ID is required' },
-        { status: 400 }
-      );
+      return handleError(null, 'Agent ID is required', 400);
     }
 
     const success = await kv.deleteAgent(params.id);
     if (!success) {
-      return NextResponse.json(
-        { error: 'Agent not found' },
-        { status: 404 }
-      );
+      return handleError(null, 'Agent not found', 404);
     }
 
-    return new Response(null, { status: 204 });
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error('Error deleting agent:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete agent' },
-      { status: 500 }
-    );
+    return handleError(error, 'Failed to delete agent');
   }
 }
 
@@ -157,54 +123,73 @@ async function handleSearch(request: Request) {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
     const userId = searchParams.get('userId');
-
-    if (!query || !userId) {
-      return NextResponse.json(
-        { error: 'Search query and user ID are required' },
-        { status: 400 }
-      );
+    
+    if (!query) {
+      return handleError(null, 'Search query is required', 400);
+    }
+    
+    if (!userId) {
+      return handleError(null, 'User ID is required', 400);
     }
 
     const agents = await kv.searchAgents(query, userId);
     return NextResponse.json(agents);
   } catch (error) {
-    console.error('Error searching agents:', error);
-    return NextResponse.json(
-      { error: 'Failed to search agents' },
-      { status: 500 }
-    );
+    return handleError(error, 'Failed to search agents');
   }
 }
 
-// Main request handler
-export async function handleRequest(
+// GET /api/agents - List all agents or search
+// GET /api/agents/:id - Get a specific agent
+export async function GET(
   request: Request,
-  { params = { id: '' } }: { params?: { id?: string } } = {}
+  { params }: { params: { id?: string } } = { params: {} }
 ) {
   const { searchParams } = new URL(request.url);
+  const searchQuery = searchParams.get('q');
   
-  // Handle search endpoint
-  if (searchParams.has('q')) {
+  // Handle GET /api/agents/:id
+  if (params?.id) {
+    return handleGETById(request, { params });
+  }
+  
+  // Handle GET /api/agents?q=search
+  if (searchQuery) {
     return handleSearch(request);
   }
-
-  // Route based on HTTP method
-  switch (request.method) {
-    case 'GET':
-      return params.id ? handleGETById(request, { params }) : handleGET(request);
-    case 'POST':
-      return handlePOST(request);
-    case 'PATCH':
-      return handlePATCH(request, { params });
-    case 'DELETE':
-      return handleDELETE(request, { params });
-    default:
-      return new NextResponse('Method not allowed', { status: 405 });
-  }
+  
+  // Handle GET /api/agents
+  return handleGET(request);
 }
 
-// Export all HTTP methods
-export const GET = handleRequest;
-export const POST = handleRequest;
-export const PATCH = handleRequest;
-export const DELETE = handleRequest;
+// POST /api/agents - Create a new agent
+export async function POST(request: Request) {
+  return handlePOST(request);
+}
+
+// PATCH /api/agents/:id - Update an agent
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  if (!params?.id) {
+    return handleError(null, 'Agent ID is required', 400);
+  }
+  return handlePATCH(request, { params });
+}
+
+// DELETE /api/agents/:id - Delete an agent
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  if (!params?.id) {
+    return handleError(null, 'Agent ID is required', 400);
+  }
+  return handleDELETE(request, { params });
+}
+
+// SEARCH /api/agents/search - Search agents (alternative to using query params)
+export async function SEARCH(request: Request) {
+  return handleSearch(request);
+}
