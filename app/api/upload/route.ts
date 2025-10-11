@@ -37,6 +37,7 @@ export async function POST(request: Request) {
       extractedText: undefined,
       metadata: undefined,
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     
     const kvStore = new KVStore(env.BREADCRUMB_KV);

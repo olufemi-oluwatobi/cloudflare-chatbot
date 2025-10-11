@@ -16,6 +16,7 @@ export interface FileMetadata {
   size: number;
   mimeType: string;
   uploadedBy: string;
+  conversationId?: string;
   embeddingId?: string;
   extractedText?: string;
   metadata?: {
@@ -26,6 +27,7 @@ export interface FileMetadata {
     };
   };
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface Artifact {
