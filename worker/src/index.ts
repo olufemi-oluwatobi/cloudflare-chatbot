@@ -1,6 +1,6 @@
-import { Counter } from '@/src/durable-objects/Counter';
-import { CouncilSession } from '@/src/durable-objects/CouncilSession';
-import { KnowledgePack } from '@/src/durable-objects/KnowledgePack';
+import { Counter } from '../../src/durable-objects/Counter';
+import { CouncilSession } from '../../src/durable-objects/CouncilSession';
+import { KnowledgePack } from '../../src/durable-objects/KnowledgePack';
 
 // Export the Durable Objects so they can be bound to the Worker
 export { Counter, CouncilSession, KnowledgePack };

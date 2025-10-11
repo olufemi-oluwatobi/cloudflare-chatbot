@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-"name": "cloudflare-chatbot",
+  "name": "cloudflare-chatbot",
   "compatibility_date": "2025-05-20",
   "compatibility_flags": ["nodejs_compat"],
   "pages_build_output_dir": ".vercel/output/static",
@@ -12,9 +12,9 @@
   },
   "kv_namespaces": [
     {
-		"binding": "BREADCRUMB_KV",
-		"id": "c96498b93f8b4cc292c031a249e5670b"
-	  },
+      "binding": "BREADCRUMB_KV",
+      "id": "c96498b93f8b4cc292c031a249e5670b"
+    },
     {
       "binding": "MY_KV_NAMESPACE",
       "id": "nnss"  // Add your KV namespace ID here
@@ -43,6 +43,6 @@
       "binding": "KNOWLEDGE_PACKS_VECTORIZE",
       "index_name": "knowledge-packs-embeddings"
     }
-  ],
+  ]
   // Durable Objects have been moved to a separate Worker
 }
