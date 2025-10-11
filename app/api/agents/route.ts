@@ -83,26 +83,5 @@ export async function PATCH(
     return handleError(error, 'Failed to update agent');
   }
 }
-// DELETE /api/agents/:id - Delete an agent
-export async function DELETE(
-  request: Request,
-  context: { params: { id: string } }
-): Promise<NextResponse> {
-  try {
-    const { id } = context.params;
-    if (!id) {
-      return handleError(null, 'Agent ID is required', 400);
-    }
-
-    const success = await kv.deleteAgent(id);
-    if (!success) {
-      return handleError(null, 'Agent not found', 404);
-    }
-
-    return new NextResponse(null, { status: 204 });
-  } catch (error) {
-    return handleError(error, 'Failed to delete agent');
-  }
-}
 
 
