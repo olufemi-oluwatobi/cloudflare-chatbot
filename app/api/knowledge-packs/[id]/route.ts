@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { KVStore } from '../../../../src/lib/kv-helpers';
 import { getRequestContext } from '@cloudflare/next-on-pages';
 
+export const runtime = 'edge';
+
 const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
 // GET /api/knowledge-packs/[id] - Get a specific knowledge pack
