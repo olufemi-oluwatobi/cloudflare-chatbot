@@ -4,6 +4,8 @@ import { getRequestContext } from '@cloudflare/next-on-pages';
 import type { Artifact } from '../../../src/types/kv-schema';
 
 // Initialize KV store
+export const runtime = 'edge';
+
 const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
 // Helper function to handle errors

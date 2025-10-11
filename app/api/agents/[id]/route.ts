@@ -6,6 +6,7 @@ import type { Agent } from '../../../../src/types/kv-schema';
 // Initialize KV store
 const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
+export const runtime = 'edge';
 // Helper function to handle common error responses
 function handleError(error: unknown, message: string, status = 500) {
   console.error(`${message}:`, error);
