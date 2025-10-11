@@ -4,7 +4,6 @@ import { getRequestContext } from '@cloudflare/next-on-pages';
 import type { Agent } from '../../../../src/types/kv-schema';
 
 // Initialize KV store
-const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
 export const runtime = 'edge';
 // Helper function to handle common error responses
@@ -26,6 +25,8 @@ export async function GET(
     if (!id) {
       return handleError(null, 'Agent ID is required', 400);
     }
+
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
     const agent = await kv.getAgent(id);
     if (!agent) {
@@ -50,6 +51,7 @@ export async function PATCH(
     }
 
     const updates = await request.json() as Partial<Agent>;
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
     const updatedAgent = await kv.updateAgent(id, {
       ...updates,
       updatedAt: new Date().toISOString(),
@@ -76,6 +78,7 @@ export async function DELETE(
       return handleError(null, 'Agent ID is required', 400);
     }
 
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
     const success = await kv.deleteAgent(id);
     if (!success) {
       return handleError(null, 'Agent not found', 404);

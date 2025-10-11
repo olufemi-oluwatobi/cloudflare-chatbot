@@ -6,7 +6,6 @@ import type { Artifact } from '../../../src/types/kv-schema';
 // Initialize KV store
 export const runtime = 'edge';
 
-const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
 // Helper function to handle errors
 function handleError(error: unknown, message: string, status = 500) {
@@ -27,6 +26,8 @@ export async function GET(request: Request) {
     if (!userId) {
       return handleError(null, 'User ID is required', 400);
     }
+
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
     // Handle search
     if (query) {
@@ -50,6 +51,8 @@ export async function POST(request: Request) {
     if (!artifactData.title || !artifactData.type || !artifactData.content) {
       return handleError(null, 'Missing required fields', 400);
     }
+
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
     const artifact: Artifact = {
       ...artifactData,

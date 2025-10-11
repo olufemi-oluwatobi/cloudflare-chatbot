@@ -4,9 +4,6 @@ import { getRequestContext } from '@cloudflare/next-on-pages';
 
 export const runtime = 'edge';
 
-// Initialize KV store
-const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
-
 // GET /api/knowledge-packs - List all knowledge pack indexes for a user
 export async function GET(request: Request) {
   try {
@@ -20,6 +17,8 @@ export async function GET(request: Request) {
         { status: 400 }
       );
     }
+
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
     if (query) {
       // Handle search
@@ -53,6 +52,7 @@ export async function POST(request: Request) {
     }
 
     const packId = crypto.randomUUID();
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
     await kv.indexKnowledgePack(packId, userId, {
       ...metadata,
       status: 'active',

@@ -6,7 +6,6 @@ import type { Agent } from '../../../src/types/kv-schema';
 // Initialize KV store
 export const runtime = 'edge';
 
-const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
 // Helper function to handle common error responses
 function handleError(error: unknown, message: string, status = 500) {
@@ -27,6 +26,9 @@ export async function GET(request: Request): Promise<NextResponse> {
       return handleError(null, 'User ID is required', 400);
     }
 
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
+
+
     const agents = await kv.listAgentsByUser(userId);
     return NextResponse.json(agents);
   } catch (error) {
@@ -42,6 +44,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (!agentData.name || !agentData.role || !agentData.personality) {
       return handleError(null, 'Missing required fields', 400);
     }
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
+
 
     const agent: Agent = {
       ...agentData,

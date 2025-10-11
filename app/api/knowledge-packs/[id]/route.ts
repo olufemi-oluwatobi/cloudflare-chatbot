@@ -4,7 +4,6 @@ import { getRequestContext } from '@cloudflare/next-on-pages';
 
 export const runtime = 'edge';
 
-const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
 // GET /api/knowledge-packs/[id] - Get a specific knowledge pack
 async function GET(
@@ -22,6 +21,8 @@ async function GET(
         { status: 400 }
       );
     }
+
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
     const packs = await kv.listKnowledgePackIndexes(userId);
     const pack = packs.find((p: { id: string }) => p.id === id);
@@ -59,6 +60,8 @@ async function DELETE(
         { status: 400 }
       );
     }
+
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
     await kv.removeKnowledgePackIndex(id, userId);
     return new Response(null, { status: 204 });

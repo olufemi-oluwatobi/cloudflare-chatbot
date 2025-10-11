@@ -5,7 +5,6 @@ import type { Artifact } from '../../../../src/types/kv-schema';
 
 export const runtime = 'edge';
 // Initialize KV store
-const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
 // Helper function to handle errors
 function handleError(error: unknown, message: string, status = 500) {
@@ -26,6 +25,8 @@ export async function GET(
     if (!id) {
       return handleError(null, 'Artifact ID is required', 400);
     }
+
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
     const artifact = await kv.getArtifact(id);
     if (!artifact) {
@@ -48,6 +49,8 @@ export async function PATCH(
     if (!id) {
       return handleError(null, 'Artifact ID is required', 400);
     }
+
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
     const updates = await request.json() as Partial<Artifact>;
     const updatedArtifact = await kv.updateArtifact(id, {
@@ -75,6 +78,8 @@ export async function DELETE(
     if (!id) {
       return handleError(null, 'Artifact ID is required', 400);
     }
+
+    const kv = new KVStore(getRequestContext().env.BREADCRUMB_KV);
 
     const success = await kv.deleteArtifact(id);
     if (!success) {
