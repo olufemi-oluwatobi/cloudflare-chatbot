@@ -86,14 +86,15 @@ export async function PATCH(
 // DELETE /api/agents/:id - Delete an agent
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
-    if (!params?.id) {
+    const { id } = context.params;
+    if (!id) {
       return handleError(null, 'Agent ID is required', 400);
     }
 
-    const success = await kv.deleteAgent(params.id);
+    const success = await kv.deleteAgent(id);
     if (!success) {
       return handleError(null, 'Agent not found', 404);
     }
