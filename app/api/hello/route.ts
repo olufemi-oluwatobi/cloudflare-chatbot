@@ -6,8 +6,6 @@ export async function GET() {
     const env = getRequestContext().env;
     
     // Example using KV
-    await env.MY_KV_NAMESPACE.put('last_accessed', new Date().toISOString());
-    const lastAccessed = await env.MY_KV_NAMESPACE.get('last_accessed');
     
     // Example using Durable Object counter
     const counterId = env.COUNTER.idFromName('A');
@@ -21,14 +19,13 @@ export async function GET() {
     const counterValue = await counterResponse.text();
     
     // Example R2 bucket list (just metadata, not the actual files)
-    const objects = await env.MY_BUCKET.list();
+    const objects = await env.FILE_STORAGE.list();
     const fileCount = objects.objects.length;
     
     return new Response(
       JSON.stringify({
         message: 'Hello from Cloudflare Workers with bindings!',
-        lastAccessed,
-        counterValue: parseInt(counterValue, 10),
+      counterValue: parseInt(counterValue, 10),
         fileCount,
         files: objects.objects.map(obj => ({
           key: obj.key,

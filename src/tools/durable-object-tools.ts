@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { tool } from 'ai';
-import { Tool } from 'ai';
+import { ToolDefinition } from '@/src/lib/Agent';
 
 type Env = {
   COUNTER: DurableObjectNamespace;
@@ -17,59 +17,27 @@ export const getCounterValueSchema = z.object({
 });
 
 // Create a custom tool type that includes our environment
-type DurableObjectTool<T extends z.ZodType> = Omit<Tool<T>, 'execute'> & {
-  execute: (params: z.infer<T>, env: Env) => Promise<any>;
-};
 
 
-export const durableObjectTools = (env: Env) => {
-  return {
-    incrementCounter: tool({
-      description: 'Increment the counter in the Durable Object',
-      parameters: incrementCounterSchema,
-      execute: async (params: z.infer<typeof incrementCounterSchema>) => {
-        try {
-          const counterId = env.COUNTER.idFromName('A');
-          const counter = env.COUNTER.get(counterId);
-          
-          // Call the increment endpoint on the Durable Object
-          const response = await counter.fetch('http://counter/increment', {
-            method: 'POST',
-            body: JSON.stringify({ amount: params.amount })
-          });
-          
-          const value = await response.text();
-          return { success: true, value: parseInt(value, 10) };
-        } catch (error) {
-          return { 
-            success: false, 
-            error: error instanceof Error ? error.message : 'Unknown error' 
-          };
-        }
-      },
-    }),
-    getCounterValue: tool({
-      description: 'Get the current value of the counter from the Durable Object',
-      parameters: getCounterValueSchema,
-      execute: async (_params: z.infer<typeof getCounterValueSchema>) => {
-        try {
-          const counterId = env.COUNTER.idFromName('A');
-          const counter = env.COUNTER.get(counterId);
-          
-          const response = await counter.fetch('http://counter/');
-          const value = await response.text();
-          
-          return { 
-            success: true, 
-            value: parseInt(value, 10) 
-          };
-        } catch (error) {
-          return { 
-            success: false, 
-            error: error instanceof Error ? error.message : 'Unknown error' 
-          };
-        }
-      },
-    }),
-  };
-};
+// Example structure your durableObjectTools should return
+
+
+export function durableObjectTools(env: any): ToolDefinition[] {
+  return [
+    {
+      id: 'counter_increment',
+      name: 'Counter Increment',
+      description: 'Increments the durable object counter',
+      parameters: z.object({
+        amount: z.number().optional().describe('Amount to increment by')
+      }),
+      execute: async (params) => {
+        const id = env.COUNTER.idFromName('A');
+        const obj = env.COUNTER.get(id);
+        // Your durable object logic here
+        return { success: true, newValue: 42 };
+      }
+    }
+    // ... more tools
+  ];
+}

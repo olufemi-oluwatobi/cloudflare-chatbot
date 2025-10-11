@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "cloudflare-chatbot",
+"name": "cloudflare-chatbot",
   "compatibility_date": "2025-05-20",
   "compatibility_flags": ["nodejs_compat"],
   "pages_build_output_dir": ".vercel/output/static",
@@ -12,27 +12,37 @@
   },
   "kv_namespaces": [
     {
+		"binding": "BREADCRUMB_KV",
+		"id": "c96498b93f8b4cc292c031a249e5670b"
+	  },
+    {
       "binding": "MY_KV_NAMESPACE",
-      // Create a KV namespace in the Cloudflare dashboard and add the ID here
-      // Run: wrangler kv:namespace create MY_KV_NAMESPACE
-      "id": "5d0383911ee04b30916f03194de796b1",
+      "id": "nnss"  // Add your KV namespace ID here
     }
   ],
   "r2_buckets": [
     {
+      "binding": "FILE_STORAGE",
+      "bucket_name": "breadcrumb-files"
+    },
+    {
       "binding": "MY_BUCKET",
-      "bucket_name": "my-bucket",
-      // This will be created automatically during deployment
+      "bucket_name": "my-bucket"  // Update with your bucket name
     }
   ],
-  "durable_objects": {
-    "bindings": [
-      {
-        "name": "COUNTER",
-        "class_name": "Counter",
-        "script_name": "counter"
-      }
-    ]
-  },
-  "main": "src/durable-objects/Counter.ts"
+  "vectorize": [
+    {
+      "binding": "FILES_VECTORIZE",
+      "index_name": "files-embeddings"
+    },
+    {
+      "binding": "ARTIFACTS_VECTORIZE",
+      "index_name": "artifacts-embeddings"
+    },
+    {
+      "binding": "KNOWLEDGE_PACKS_VECTORIZE",
+      "index_name": "knowledge-packs-embeddings"
+    }
+  ],
+  // Durable Objects have been moved to a separate Worker
 }

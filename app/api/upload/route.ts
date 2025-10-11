@@ -2,6 +2,8 @@ import { getRequestContext } from '@cloudflare/next-on-pages';
 
 export const runtime = 'edge';
 
+import { KVStore } from '../../../src/lib/kv-helpers';
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -18,26 +20,29 @@ export async function POST(request: Request) {
     
     // Upload file to R2
     const objectKey = `uploads/${Date.now()}-${file.name}`;
-    await env.MY_BUCKET.put(objectKey, file.stream());
+    await env.FILE_STORAGE.put(objectKey, file.stream());
+
 
     // Store metadata in KV
     const fileMetadata = {
-      key: objectKey,
+      id: crypto.randomUUID(),
       name: file.name,
+      type: file.type as 'image' | 'pdf' | 'document',
+      storageId: objectKey,
+      r2Key: objectKey,
       size: file.size,
-      type: file.type,
-      uploadedAt: new Date().toISOString(),
+      mimeType: file.type,
+      uploadedBy: 'system',
+      embeddingId: undefined,
+      extractedText: undefined,
+      metadata: undefined,
+      createdAt: new Date().toISOString(),
     };
     
-    await env.MY_KV_NAMESPACE.put(
-      `file:${objectKey}`, 
-      JSON.stringify(fileMetadata)
-    );
+    const kvStore = new KVStore(env.BREADCRUMB_KV);
+    await kvStore.setFile(fileMetadata);
 
-    // Increment counter in Durable Object
-    const counterId = env.COUNTER.idFromName('A');
-    const counter = env.COUNTER.get(counterId);
-    await counter.fetch('http://counter/increment');
+  
 
     return new Response(JSON.stringify({
       success: true,

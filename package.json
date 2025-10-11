@@ -13,6 +13,8 @@
 		"cf-typegen": "wrangler types --env-interface CloudflareEnv ./env.d.ts"
 	},
 	"dependencies": {
+		"@ai-sdk/anthropic": "^2.0.27",
+		"@ai-sdk/openai": "^2.0.49",
 		"@ai-sdk/react": "^1.2.12",
 		"@icons-pack/react-simple-icons": "^12.8.0",
 		"@radix-ui/react-avatar": "^1.1.9",

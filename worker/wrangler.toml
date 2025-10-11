@@ -1,0 +1,15 @@
+name = "durable-objects-worker"
+main = "src/index.ts"
+compatibility_date = "2023-05-18"
+compatibility_flags = ["nodejs_compat"]
+
+[durable_objects]
+bindings = [
+  { name = "COUNTER", class_name = "Counter" },
+  { name = "COUNCIL_SESSION", class_name = "CouncilSession" },
+  { name = "KNOWLEDGE_PACK", class_name = "KnowledgePack" }
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["Counter", "CouncilSession", "KnowledgePack"]
