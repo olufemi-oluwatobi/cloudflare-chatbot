@@ -73,10 +73,10 @@ export async function GET() {
     const env = getRequestContext().env;
     
     // List all files from KV
-    const list = await env.MY_KV_NAMESPACE.list({ prefix: 'file:' });
+    const list = await env.BREADCRUMB_KV.list({ prefix: 'file:' });
     const files = await Promise.all(
       list.keys.map(async (key) => {
-        const value = await env.MY_KV_NAMESPACE.get(key.name, 'json');
+        const value = await env.BREADCRUMB_KV.get(key.name, 'json');
         return value;
       })
     );

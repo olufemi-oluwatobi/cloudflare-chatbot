@@ -15,10 +15,7 @@
       "binding": "BREADCRUMB_KV",
       "id": "c96498b93f8b4cc292c031a249e5670b"
     },
-    {
-      "binding": "MY_KV_NAMESPACE",
-      "id": "nnss"  // Add your KV namespace ID here
-    }
+    
   ],
   "r2_buckets": [
     {
